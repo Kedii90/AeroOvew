@@ -158,7 +158,7 @@
 
     onMounted(()=>{
         const data = priceFn(tripStore.tripMapData);
-        console.log(data);
+        console.log(1,data);
         myChart(data);
     })
 

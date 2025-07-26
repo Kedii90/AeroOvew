@@ -38,7 +38,7 @@
     function myChart(dataList: SpotItem[]) {
         const chart = echarts.init(document.getElementById('main'));
     
-        const  option = {
+        const option = {
             tooltip: {
                 trigger: 'item',
                 formatter: function(params: any){

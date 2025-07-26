@@ -13,13 +13,21 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@element-plus/icons-vue": "^2.3.1",
     "@jiaminghi/data-view": "^2.10.0",
     "@vitejs/plugin-legacy": "^6.1.1",
     "axios": "^1.9.0",
     "echarts": "^5.6.0",
+    "echarts-wordcloud": "^2.1.0",
+    "element-plus": "^2.10.3",
+    "exceljs": "^4.4.0",
+    "html2canvas": "^1.4.1",
     "pinia": "^3.0.1",
     "vue": "^3.5.13",
+    "vue-drag-resize": "^1.5.4",
+    "vue-draggable-next": "^2.2.1",
     "vue-router": "^4.5.0",
+    "vuedraggable": "^4.1.0",
     "worker-loader": "^3.0.8"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 <script setup lang="ts" name="App">
     import { useRouter } from 'vue-router';
-    import { ref , onMounted } from "vue";
+    import { ref } from "vue";
     import { RouterView } from 'vue-router'
 
     const selectScreen = [ {
@@ -9,10 +9,14 @@
         },{
             name:"旅游数据分析",
             path:"/tripAnalyse"
-        }];
+        },{
+            name:"自定义数据图表",
+            path:"/custom"
+        }  
+    ];
     const firstPageShow = ref(true);  
     const router = useRouter();
-
+    
     interface RouterPage {
         name: string;
         path: string;
@@ -25,7 +29,7 @@
     }
    
    window.onpopstate = function () {
-    firstPageShow.value = !firstPageShow.value;
+       firstPageShow.value = !firstPageShow.value;
 }
 
 </script>
@@ -36,7 +40,7 @@
                 <div  class="title">旅游数据可视化分析</div>
                 <div id="container">
                     <div class="box">
-                        <dv-border-box-1 class="selectBox"  @click="routerPageFunction(screen.path)" backgroundColor="#0d2739" v-for="(screen,index) in selectScreen" :key="index">{{screen.name}}</dv-border-box-1> 
+                        <dv-border-box-1 class="selectBox" :class="{'full-width': index === 2}" @click="routerPageFunction(screen.path)" backgroundColor="#0d2739" v-for="(screen,index) in selectScreen" :key="index">{{screen.name}}</dv-border-box-1> 
                     </div>
                 </div>
            </template>
@@ -82,5 +86,8 @@
         font-size: 50px;
         color:#c3ddeb;
         text-align: center;
+     }
+     .full-width {
+        width: 100% !important;
      }
 </style>
