@@ -260,7 +260,7 @@ function fn(val: any[]) {
      .png{
        width:38px;
        height:38px;
-       background-image: url("./images/sprite.png");
+       background-image: url("/AeroOvew/images/sprite.png");
      }
      .spriteF{
          background-position: 0 1px;

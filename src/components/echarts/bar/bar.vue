@@ -69,7 +69,7 @@
            series: { ...series, data: newData },
            dataZoom
         };
-        console.log(option);
+     
         return option;
     };
 
