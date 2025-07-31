@@ -14,9 +14,9 @@
             path:"/custom"
         }  
     ];
+   
     const firstPageShow = ref(true);  
     const router = useRouter();
-    
     interface RouterPage {
         name: string;
         path: string;
@@ -35,7 +35,7 @@
 </script>
 
 <template>
-         <dv-full-screen-container style="background-color: #121c29;overflow: scroll;">
+         <dv-full-screen-container style="background-color:#121c29;overflow: auto;">
             <template v-if="firstPageShow">
                 <div  class="title">旅游数据可视化分析</div>
                 <div id="container">
@@ -52,11 +52,11 @@
 </template>
 
 <style scoped>
+
      #container{
         display: flex;   
         justify-content: center;
         width:100%;
-        height:100%;
      }
      .box{
          width:70%;

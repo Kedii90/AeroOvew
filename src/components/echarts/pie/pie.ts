@@ -1,5 +1,6 @@
 export default function pie(
-  data: Array<Record<string, any>>
+   data: Array<Record<string, any>>,
+  externalConfig?: any
 ) {
   const newData = data.reduce(
     (acc: { name: string; value: number }[], item: Record<string, any>) => {
@@ -18,6 +19,7 @@ export default function pie(
     },
     []
   );
+    
      const title =  {
                     show: false,
                     text: "",
@@ -29,7 +31,7 @@ export default function pie(
                     top: "",
                 }
                 //图例
-            const    legend= {
+            const  legend= {
                     show: false,
                     textStyle: {
                         color: "#f1f1f1",
@@ -41,35 +43,62 @@ export default function pie(
                     orient: "horizontal",
                     scroll: false,
                 }
-            const series =  {
-                   type: 'pie',
-                    center: ["50%", "50%"],
-                    radius: ["30%", "50%"],
-                    solidRadius: "50%",
-                    solid: true,
-                    label: {
-                        show: true,
-                        color: "#f1f1f1",
-                        fontSize: 14,
-                        position: "outside",
-                    },
-                    roseType: false,
-                    smooth: false,
-                    labelLine: {
-                        show: true,
-                        length: 15,
-                        length2: 10,
-                    }
-
+            
+            // 基础系列配置
+            const baseSeries = {
+                type: 'pie',
+                center: ["50%", "50%"],
+                solid: false,
+                label: {
+                    show: true,
+                    color: "#f1f1f1",
+                    fontSize: 14,
+                    position: "outside",
+                },
+                roseType: false,
+                smooth: false,
+                labelLine: {
+                    show: true,
+                    length: 15,
+                    length2: 10,
                 }
-        
-                return {
+            };
+
+            // 根据是否实心设置不同的半径配置
+            const series = {
+                ...baseSeries,
+                radius: ["30%", "50%"]
+            };
+                 const baseConfig = {
                     newData,
                     title,
                     legend,
                     series
-
+              };
+              if(externalConfig){
+                const mergedConfig = deepMerge(baseConfig,externalConfig);
+                // 处理实心饼图的radius配置
+                if (mergedConfig.series?.solid && mergedConfig.series?.solidRadius) {
+                    mergedConfig.series.radius = mergedConfig.series.solidRadius;
                 }
+                return mergedConfig;
+              }
+            return baseConfig;
+}
 
 
+function deepMerge(target: any, source: any): any {
+  const result = { ...target };
+  
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (typeof source[key] === 'object' && source[key] !== null && !Array.isArray(source[key])) {
+        result[key] = deepMerge(result[key] || {}, source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+  }
+  
+  return result;
 }

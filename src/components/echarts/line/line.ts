@@ -1,4 +1,6 @@
-export default function line(data: Array<Record<string, any>>){
+
+
+export default function line(data: Array<Record<string, any>>, externalConfig?: any){
           const newData = data.reduce(
     (acc: { name: string; value: number }[], item: Record<string, any>) => {
       const pos = acc.findIndex(
@@ -16,6 +18,7 @@ export default function line(data: Array<Record<string, any>>){
     },
     []
   );
+
     const title= {
                     show: false,
                     text: "",
@@ -67,7 +70,7 @@ export default function line(data: Array<Record<string, any>>){
                         color: "#f1f1f1",
                         fontSize: 12,
                         interval: false,
-                        rotate: 0,
+                        rotate: 45,
                     },
                     splitLine: {
                         show: false,
@@ -116,45 +119,67 @@ export default function line(data: Array<Record<string, any>>){
                     show: false,
                     type: "inside",
                 }
+                const gradualColor=["#5171fd", "#c97afd"]; //渐变颜色
+                const gradual =false;
                 const series ={
                         name: "",
                         type: "line",
-                        gradual: true, //是否渐变色
-                        gradualColor: ["#5171fd", "#c97afd"], //渐变颜色
+                        lineStyle:{
+                          width:2
+                        },
                         color: "#5171fd", //非渐变色颜色
-                        orient: "vertical",
+                        orient: "horizontal",
                         smooth: true, //是否平滑显示
                         showSymbol: true, //是否显示图标
                         symbolSize: 6, //图标大小
+                        itemStyle:{
+                             borderColor: "#fff"
+                        },
                         label: {
-                        show: false,
-                        color: "#f1f1f1",
-                        fontSize: 12,
-                        position: "outside",
+                            show: false,
+                            color: "#f1f1f1",
+                            fontSize: 12,
+                            position: "outside",
                         },
-                        itemStyle: {
-                        color: "#5171fd",
-                        borderColor: "#fff",
-                        },
-                        areaStyle: {
-                        show: false,
-                        gradualColor: ["#5171fd", "rgba(127,153,255,0.1)"],
-                        },
-                        lineWidth: 2,
                     }
                  
                  const xAxisData = newData.map((item: { name: string; value: number }) => item.name);
                  xAxis.data = xAxisData;
 
-                return {
+                const baseConfig = {
                     newData,
                     title,
                     legend,
+                    grid,
                     xAxis,
                     yAxis,
                     dataZoom,
-                    series
+                    series,
+                    gradualColor,
+                    gradual 
+                };
+                
+                // 如果有外部配置，深度合并
+                if (externalConfig) {
+                    return deepMerge(baseConfig, externalConfig);
+                }
+                
+                return baseConfig;
+} 
 
-                }  
- 
+// 深度合并函数
+function deepMerge(target: any, source: any): any {
+  const result = { ...target };
+  
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (typeof source[key] === 'object' && source[key] !== null && !Array.isArray(source[key])) {
+        result[key] = deepMerge(result[key] || {}, source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+  }
+  
+  return result;
 } 

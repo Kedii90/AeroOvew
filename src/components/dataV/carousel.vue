@@ -15,8 +15,8 @@
     const updateConfig = () => {
             const { newData } = carousel(customStore.customData);
             config.data = [...newData];
-            console.log(1,config);
-            // 触发响应式更新
+            
+          
             config = { ...config };
         
     };

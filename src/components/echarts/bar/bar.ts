@@ -1,5 +1,8 @@
+
+
 export default function bar(
-  data: Array<Record<string, any>>
+  data: Array<Record<string, any>>,
+  externalConfig?: any
 ) {
   const newData = data.reduce(
     (acc: { name: string; value: number }[], item: Record<string, any>) => {
@@ -18,6 +21,7 @@ export default function bar(
       return acc;
       
     },[])
+ 
    const title = {
                     show: false,
                     text: "",
@@ -40,13 +44,6 @@ export default function bar(
                     orient: "horizontal",
                     scroll: false,
                 }
-                const grid = {
-                    left: '10%',
-                    top: '10%',
-                    right: '10%',
-                    bottom: '15%',
-                    containLabel: true
-                }
                 const  xAxis=  {
                     type: 'category',
                     axisLine: {
@@ -66,9 +63,9 @@ export default function bar(
                     axisLabel: {
                         show: true,
                         color: "#f1f1f1",
-                        fontSize: 12,
-                        interval: false,
-                        rotate: 0,
+                        fontSize: 10,
+                        interval: 0,
+                        rotate: 45
                     },
                     splitLine: {
                         show: false,
@@ -103,7 +100,9 @@ export default function bar(
                     axisLabel: {
                         show: true,
                         color: "#f1f1f1",
-                        fontSize: 12,
+                        fontSize: 10,
+                        interval: 0,
+                        rotate: 0
                     },
                     splitLine: {
                         show: false,
@@ -117,15 +116,19 @@ export default function bar(
                      show: false,
                     type: "inside",
                 }
+                const gradual=false;
+                const gradualColor =["#5171fd","#c97afd"]
                 const series = {
                      name: "",
-                    type: "bar",
+                     type: "bar",
                      barWidth: "20",
-                    gradual: true, //是否渐变色
-                    gradualColor: ["#5171fd", "#c97afd"], //渐变颜色
+                   
+                     itemStyle: {
+                        borderRadius: 0 
+                      },
                     color: "#5171fd", //非渐变色颜色
-                    barBorderRadius: 0,
-                    orient: "vertical",
+                   
+                    orient: "horizontal",
                     label: {
                         show: false,
                         color: "#f1f1f1",
@@ -135,17 +138,43 @@ export default function bar(
                 }
               const xAxisData = newData.map((item: { name: string; value: number }) => item.name);
               xAxis.data = xAxisData;
-              return {
+              
+              // 合并外部配置
+              const baseConfig = {
                 newData,
+                gradual,
+                gradualColor,
                 title,
                 legend,
-                grid,
                 xAxis,
                 yAxis,
                 series,
                 dataZoom
+              };
+              
+              // 如果有外部配置，深度合并
+              if (externalConfig) {
+                return deepMerge(baseConfig, externalConfig);
               }
+              
+              return baseConfig;
+}
 
+// 深度合并函数
+function deepMerge(target: any, source: any): any {
+  const result = { ...target };
+  
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (typeof source[key] === 'object' && source[key] !== null && !Array.isArray(source[key])) {
+        result[key] = deepMerge(result[key] || {}, source[key]);
+      } else {
+        result[key] = source[key];
+      }
+    }
+  }
+  
+  return result;
 }
 
 

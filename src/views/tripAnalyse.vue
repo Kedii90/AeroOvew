@@ -37,7 +37,7 @@
     import scoreSale from "../components/scoreSale.vue"
     import priceSale from "../components/priceSale.vue"
     import mapSale from "../components/mapSale.vue";
-
+   
 </script>
 
 
@@ -48,12 +48,12 @@
    .main-contain {
     display: flex;
     width: 100%;
-    height: 100%;
+    height: 93%;
     flex-wrap: wrap;
 }   
    .salesec {
     width:50%;
-    height:50%;
+    height:63%;
     display: flex;
     align-items: center;
 }

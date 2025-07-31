@@ -25,27 +25,19 @@
           </div>
       </el-tooltip>
 
-      <el-tooltip effect="dark" content="预览">
-      <div class="png spritef" @click="preview">
-          </div>
-      </el-tooltip>
-
   </el-row>
-   <div class="center"  :style="{
-      width: viewportWidth + 'px',
-      height:viewportHeight+ 'px',
-      background: 'url(\' /images/background/default.png\') center/cover no-repeat'
-    }">
+   <div class="center"  :style="getBgc" ref="cutScreen">
     <button  class="right-btn" @click="rightSelect" v-show="vshow">
        <span class="iconfont">&#xe607;</span>
     </button>
     <keep-alive>
        <drawer  @drag="fn" :visable="!vshow" @close="vshow = !vshow" :isCLone="customData.length>0"></drawer>
+       
     </keep-alive>
-     <div class="center-container"  ref="cutScreen" :style="{
-         width: viewportWidth + 'px',
-         height: viewportHeight + 'px',
-  }">
+     <div class="center-container"  :style="{
+      width: viewportWidth + 'px',
+      height: '100%'
+    }">
     <draggable
       :list="canvasList"
       :group="{ name: 'componentDrag', pull: false, put: true }"
@@ -54,8 +46,25 @@
       v-slot:item="{ element }"
     >
     
-      <vue-drag-resize :w="350" :h="350" class="chart-wrapper">
-          <component :is="element.component" />
+      <vue-drag-resize :w="getWidth" :h="getHeight" class="chart-wrapper" @activated=" showDelete =!showDelete"    @clicked="handleComponentClick(element)" @deactivated="
+      showDelete =!showDelete;">
+          <component 
+            :is="element.component" 
+            :ref="(el: any) => {
+              if (el) {
+                componentRefs.set(element.id, el);
+              }
+            }"
+          />
+           <el-button
+              type="danger"
+              :icon="CloseBold"
+              circle
+              size="small"
+              class="del-button"
+              v-show = showDelete
+              @click="removeComponent(element.id)"
+            ></el-button>
       </vue-drag-resize>
     
     </draggable>
@@ -66,13 +75,29 @@
     <Dialog :data="customData"  title="数据展示" :visible="dialogTableShow"
     @update:visible="dialogTableShow = $event" v-if="dialogTableShow"></Dialog>
      
+
+    <back :drawer="leftShow" @close="leftShow=!leftShow" @select="changeBgc"></back>
      
-        
+      <div class="right" v-if="settingBtn&&currconfig.length">
+        <rightSetting   v-if="currconfig.length" :config="currconfig" @changeSize="size">
+        </rightSetting>
+         <el-button
+              type="danger"
+              :icon="CloseBold"
+              circle
+              size="small"
+              class="del-button"
+              @click="()=>{
+                 settingBtn=false;
+                 currconfig.length=0;
+              }"
+            ></el-button>
+      </div>   
   </div>
    
   </div>
 </div>
-     
+ 
 </template>
 
 <script setup lang="ts" name="custom">
@@ -81,32 +106,73 @@
     import draggable from 'vuedraggable'
     import { storeToRefs } from "pinia"
     import Dialog from "../components/dialog/index.vue"
-    import { deal } from "../utils/index.ts"
-    import { ref , watch , computed } from "vue"
+    import { deal,sleep } from "../utils/index.ts"
+    import { ref , watch , computed , reactive} from "vue"
     import useCutomStore from '../stores/customStore'
     import drawer from "../components/drawer/index.vue"
     import html2canvas from "html2canvas";
+    import rightSetting from "../components/right-setting/index.vue"
     import { ElMessage } from 'element-plus'
-    const cutScreen =ref(null);
-    const viewportWidth = ref(window.innerWidth);  // 视口宽度（包括滚动条）
-    const viewportHeight = ref(window.innerHeight); // 视口高度
+    import back from "../components/back/index.vue"
+    import { CloseBold } from '@element-plus/icons-vue'
+    const truthWidth = ref(300);
+    const truthHeight =ref(300);
+    const cutScreen = ref(null);
+    const viewportWidth = ref(document.body.clientWidth);  // 视口宽度（包括滚动条）
+    const viewportHeight = ref(document.body.clientHeight); // 视口高度
     const vshow = ref(true);
+    const settingBtn = ref(false);
+    const leftShow =ref(false);
+    const showDelete = ref(true);
+    const currconfig = reactive<any[]>([]);
     const canvasList = ref<any[]>([]);
     const dialogTableShow = ref(false);
     const csvRef = ref<HTMLInputElement | null>(null);
     const customStore = useCutomStore();
+    const bgc = ref("./images/background/background-5.png");
     const { customData } = storeToRefs(customStore);
+    
+    // 存储组件实例的ref映射
+    const componentRefs = ref<Map<string, any>>(new Map());
+    
     function dataLoader(){
           csvRef.value?.click();
+          settingBtn.value = false;
     }
-    const exportImg = () => {
+    function size(key: string, value: string){
+      if(key === "width"){
+        truthWidth.value = parseInt(value);
+      }else{
+        truthHeight.value = parseInt(value);
+      }
+      
+
+    }
+    const getWidth=computed(()=>{
+          return Math.ceil(truthWidth.value /(viewportWidth.value/screen.width));
+    })
+    const getHeight=computed(()=>{
+          return Math.ceil(truthHeight.value /(viewportHeight.value/screen.height));
+    })
+
+    
+    const getBgc = computed(()=>{
+
+      return  {width: viewportWidth.value + 'px',
+      height:'95%',
+      background: `url("${bgc.value}") center center/cover no-repeat`}
+    })
+    const exportImg = async() => {
+       settingBtn.value = false;
       if (!cutScreen.value) {
         ElMessage.warning("截图区域未准备好");
         return;
       }
+      await sleep(3000);
       html2canvas(cutScreen.value as HTMLElement, {
-        useCORS: true,
-        backgroundColor: null // 保证透明背景时不被覆盖
+        allowTaint: true,       // 允许跨域图片
+        useCORS: true,          // 使用 CORS
+        logging: true,          // 开启日志调试
       }).then((res) => {
         var dataUrl = res.toDataURL("image/jpeg", 1.0);
         var a = document.createElement("a");
@@ -116,7 +182,6 @@
       });
     };
     const rightSelect = ()=>{
-      console.log(5,customData);
        if(customData.value.length >0 ){
            vshow.value = !vshow.value
            return ;
@@ -124,30 +189,26 @@
        ElMessage.warning("请先上传数据");
       
     }
-    const changeBgc=()=>{
-      ElMessage.warning("该功能开发中");
+    const changeBgc=(arg?: string | MouseEvent)=>{
+      leftShow.value =!leftShow.value;
+      if(arg && typeof arg === 'string'){
+        bgc.value = arg;
+      }
+      settingBtn.value = false;
     }
-    const preview = ()=>{
-      ElMessage.warning("该功能开发中")
-    }
+    const removeComponent = (id: string)=>{
+       canvasList.value.splice(canvasList.value.findIndex(item=>item.id===id),1)
+       currconfig.length = 0;
+      }
     const getStyle = computed<Record<string, string>>(() => {
-      return dialogTableShow.value 
-        ? {
-            position: 'fixed',
+     
+      return { position: 'fixed',
             top: '0',
-            left: '0',
-            width: '100%',
-            height: '100%',
-            backgroundColor: 'rgba(0, 0, 0, 0.5)'
-          }
-        : {
-            position: '',
-            top: '',
-            left: '',
-            width: '',
-            height: '',
-            backgroundColor: ''
-          };
+             left: '0',
+             width: '100%',
+             height: '100%',
+             transform: 'scale(1, 1)',
+             backgroundColor: 'rgba(0, 0, 0, 0.5)'}
     });
 
     async function onFileChange(e:any) {
@@ -163,27 +224,43 @@
         viewportWidth.value = viewportWidth.value- 450;
       }
 })
-function fn(val: any[]) { 
-    canvasList.value = [];
-    canvasList.value.push(...val);
+function handleComponentClick(ele: any){
+    // 从组件ref映射中获取实例ID
+    const componentRef = componentRefs.value.get(ele.id);
+    let instanceId = null;
     
-  
+    if (componentRef && componentRef.instanceId) {
+        instanceId = componentRef.instanceId;
+    }
+    
+    // 将组件信息和实例ID一起存储
+    const componentInfo = {
+        ...ele,
+        instanceId: instanceId
+    };
+    
+    currconfig.length = 0; // 清空之前的配置
+    currconfig.push(componentInfo); 
+ 
+    if(ele.title ==="carousel" || ele.title === "word") return ;
+    settingBtn.value = true;
+}
+function fn(val: any[]) { 
+  canvasList.value.push(...val.slice(val.length-1,val.length));
+   
 }
 
     
 </script>
 
 <style scoped>
-    
-     
-    
     #excelUpload{
       display: none;
     }
      .png{
        width:38px;
        height:38px;
-       background-image: url("/public/images/sprite.png");
+       background-image: url("./images/sprite.png");
      }
      .spriteF{
          background-position: 0 1px;
@@ -227,8 +304,20 @@ function fn(val: any[]) {
         display: flex;
         align-items: center;
         justify-content: center;
-    
     }
-    
+     .del-button {
+        position: absolute;
+        right: 0;
+        top: 0;
+      }
+       .right {
+        position: fixed;
+        right:0px;
+        top:30px;
+        width: 340px;
+        height: 96%;
+        z-index: 150;
+        background-color: #121212;
+    }
 </style>
 

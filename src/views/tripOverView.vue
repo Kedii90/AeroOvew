@@ -129,12 +129,11 @@
 .main-container {
   display: flex;
   width: 100%;
-  height: 100%;
+  height: 93%;
  
 }
 .border {
   flex:1;
-  height: 90%;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -142,8 +141,8 @@
 
 }
 .dvbox {
-  height: 50%;
   width: 100%;
+  height:50%;
   color: white;
 }
 

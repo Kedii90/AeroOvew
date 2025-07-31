@@ -28,7 +28,7 @@
             
           </template>
     
-          </draggable>
+        </draggable>
     </el-scrollbar>
   </el-drawer>
   
@@ -51,33 +51,32 @@ watch(()=>props.visable,(...old)=>{
       visible.value = props.visable;
 })
 function handleEnd(){
-
    emits("drag",currentMove);
    
 }
 const comList = [{
     id:"001",
-    title:"柱形图",
+    title:"bar",
     img:"/AeroOvew/images/bar.png",
     component:bar
 },{
     id:"002",
-    title:"折线图",
+    title:"line",
     img:"/AeroOvew/images/line.png",
     component:line
 },{
     id:"003",
-    title:"饼图",
+    title:"pie",
     img:"/AeroOvew/images/pie.png",
     component:pie
 },{
     id:"004",
-    title:"词云图",
+    title:"word",
     img:"/AeroOvew/images/word.png",
     component:word
 },{
   id:"005",
-  title:"轮播表",
+  title:"carousel",
   img:"/AeroOvew/images/carousel.png",
   component:carousel
 }]

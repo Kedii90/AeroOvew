@@ -1,6 +1,5 @@
 <template>
   <el-table :data="tableData" style="width: 100" :stripe="true" height="300">
-  
          <el-table-column   v-for="(key, index) in Object.keys(tableData[0] || {}).filter(k => k !== 'show')"
           :prop="key"
           :label="key"
